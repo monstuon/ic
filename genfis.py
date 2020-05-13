@@ -12,7 +12,7 @@ __author__ = 'Daniel Albornoz'
 
 import numpy as np
 import matplotlib.pyplot as plt
-from clustering import subclust2 as clust
+from subclust2 import subclust2 as clust
 from sklearn.preprocessing import MinMaxScaler
 import time
 
