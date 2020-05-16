@@ -5,7 +5,7 @@ __author__ = 'Daniel Albornoz'
 
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
-import matplotlib.pyplot as plt
+from scipy.spatial import distance_matrix
 
 def subclust2(data,Ra,Rb=0, AcceptRatio=0.5, RejectRatio=0.15):
     if Rb==0:
@@ -14,8 +14,14 @@ def subclust2(data,Ra,Rb=0, AcceptRatio=0.5, RejectRatio=0.15):
     scaler = MinMaxScaler()
     scaler.fit(data)
     ndata = scaler.transform(data)
-    P = np.array([np.sum([np.exp(-abs(np.linalg.norm(u-v))/(Ra/2)**2) for v in ndata]) for u in ndata])
     
+    # 14/05/2020 cambio list comprehensions por distance matrix
+    #P = np.array([np.sum([np.exp(-(np.linalg.norm(u-v)**2)/(Ra/2)**2) for v in ndata]) for u in ndata])
+    #print(P)
+    P = distance_matrix(ndata,ndata)
+    alpha=(Ra/2)**2
+    P = np.sum(np.exp(-P**2/alpha),axis=0)
+   
     centers = []
     i=np.argmax(P)
     C = ndata[i]
@@ -27,7 +33,8 @@ def subclust2(data,Ra,Rb=0, AcceptRatio=0.5, RejectRatio=0.15):
     while continuar:
         pAnt = p
         if restarP:
-            P=P-p*np.array([np.exp(-abs(np.linalg.norm(v-C))/(Rb/2)**2) for v in ndata])
+            P=P-p*np.array([np.exp(-np.linalg.norm(v-C)**2/(Rb/2)**2) for v in ndata])
+            #P=P-p*np.array([np.exp(-abs(np.linalg.norm(v-C))/(Rb/2)**2) for v in ndata])
         restarP = True  
         i=np.argmax(P)
         C = ndata[i]
